@@ -1,0 +1,56 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./stylesheets/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div class="main w-full min-h-screen bg-zinc-900 p-10">
+        <div class="form">
+            <form action="/create" method="post">
+                <div id="section" class="flex">
+                    <input required name="title" type="text" class="px-2 py-1 outline-none text-zinc-200 rounded-md my-2 w-1/4 bg-zinc-700 block" placeholder="Title">
+                    <label for="type" class="text-zinc-700 my-3 block ml-8 mr-1 px-2">Type of file:</label>
+                    <select name="type" id="type" class="hover:select appearance-none px-4 outline-none text-zinc-200 rounded-md bg-zinc-700 block my-2">
+                        <option value=".txt">plain text</option>
+                        <option value=".py">python</option>
+                        <option value=".html">HTML</option>
+                        <option value=".mermaid">Mermaid</option>
+                        <option value=".css">CSS</option>
+                        <option value=".js">Javascript</option>
+                        <option value=".java">Java</option>
+                    </select>
+                </div>
+                <textarea required name="desc" class="px-2 py-1 outline-none text-zinc-300 rounded-md resize-y my-2 h-1/4 w-full bg-zinc-700 block" placeholder="Content"></textarea>
+                <input class="rounded-md bg-zinc-700 hover:text-zinc-100 hover:bg-zinc-800 text-zinc-400 my-2 py-2 px-7" type="submit" value="Create">
+            </form>
+        </div>
+        <div id="tasks" class="flex gap-10 flex-wrap">
+            <% if(files.length > 0){ %>
+                <% files.forEach((file)=>{ %>
+                    <div class="w-80 bg-zinc-800 px-3 py-4 text-zinc-400 rounded-lg" id="task">
+                        <div id="head-file" class="flex mb-1 items-center gap-6">
+                            <h1 class="font-semibold text-xl"><%= file.split(".")[0].split('-').join(" ") %></h1>
+                            <span class="font-lighter text-sm">.<%= file.split(".")[1] %></span>
+                        </div>
+                        <div class="flex justify-between align-center">
+                            <a class="hover:text-blue-500 text-xs text-blue-400 inline-block mt-1" href='/notes/<%= file %>'>See More...</a>
+                            <div id="edit" class="flex gap-1 align-center">
+                                <a class="text-sm hover:text-zinc-500" href="/edit/<%= file %>">edit</a> <span class="flex align-center">|</span>
+                                <a class="text-sm text-red-500 hover:text-red-400" href="/delete/<%= file %>">delete</a>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <h1 class="text-zinc-500 text-sm">No tasks available.</h1>
+            <% } %>
+        </div>
+    </div>
+
+
+    <script src="/javascripts/script.js"></script>
+</body>
+</html>

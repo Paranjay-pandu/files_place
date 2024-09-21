@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mermaid Chart Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        #mermaid {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Mermaid Chart Example</h1>
+
+    <div class="mermaid" id="mermaid">
+        graph TD;
+            A[Start] --> B{Is it a weekend?};
+            B -->|Yes| C[Enjoy your weekend!];
+            B -->|No| D{Is it a holiday?};
+            D -->|Yes| E[Relax, it's a holiday!];
+            D -->|No| F[Go to work];
+            F --> G[Finish work];
+            G --> H[Go home];
+            H --> A;
+    </div>
+
+    <script>
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,34 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    
+    <div id="main" class="min-h-screen w-full bg-zinc-900 p-10">
+        <a href="/" class="text-blue-500">Go back.    </a>
+        <form action="/save/<%= filename%>" method="post">
+            <div id="section" class="flex">
+                <input required name="title" type="text" class="px-2 py-1 outline-none text-zinc-200 rounded-md my-2 w-1/4 bg-zinc-700 block" value="<%= filename.split(".")[0].split('-').join(" ") %>">
+                <label for="type" class="text-zinc-700 my-3 block ml-8 mr-1 px-2">Type of file:</label>
+                <select name="type" id="type" class="hover:select appearance-none px-4 outline-none text-zinc-200 rounded-md bg-zinc-700 block my-2">
+                    <option value=".txt" <%= ext === '.txt' ? 'selected' : '' %>>Plain Text</option>
+                    <option value=".py" <%= ext === '.py' ? 'selected' : '' %>>Python</option>
+                    <option value=".html" <%= ext === '.html' ? 'selected' : '' %>>HTML</option>
+                    <option value=".mermaid" <%= ext === '.mermaid' ? 'selected' : '' %>>Mermaid</option>
+                    <option value=".css" <%= ext === '.css' ? 'selected' : '' %>>CSS</option>
+                    <option value=".js" <%= ext === '.js' ? 'selected' : '' %>>JavaScript</option>
+                    <option value=".java" <%= ext === '.java' ? 'selected' : '' %>>Java</option>
+                </select>
+            </div>
+            <div id="section" class="flex gap-10 min-h-80 justify-between">
+                <textarea required name="desc" class="px-2 py-1 outline-none text-zinc-300 rounded-md resize-none my-2 h-full w-[50%] bg-zinc-700 block" placeholder="Content"><%= filedata %></textarea>
+                <iframe src="https://www.google.com/" class="px-2 py-1 outline-none text-zinc-300 rounded-md resize-none my-2 h-full w-[50%] bg-zinc-700 block" frameborder="0"></iframe>
+            </div>
+            <input class="rounded-md bg-zinc-700 hover:text-zinc-100 hover:bg-zinc-800 text-zinc-400 my-2 py-2 px-7" type="submit" value="Save">
+        </form>
+    </div>
+</body>
+</html>
