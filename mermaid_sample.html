@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            bg: '#1a202c',
+                            text: '#e2e8f0',
+                            input: '#2d3748',
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-gray-100 dark:bg-dark-bg text-gray-800 dark:text-dark-text p-4">
+    <div class="container mx-auto flex flex-col md:flex-row gap-4">
+        <div class="w-full md:w-1/2 bg-white dark:bg-dark-input rounded-lg shadow-md p-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Input</h2>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="darkModeToggle" class="sr-only peer" checked>
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                    <span class="ml-3 text-sm font-medium">Dark Mode</span>
+                </label>
+            </div>
+            <textarea id="sample" class="w-full h-48 p-2 border border-gray-300 dark:border-gray-600 rounded resize-y bg-white dark:bg-dark-input text-gray-800 dark:text-dark-text"></textarea>
+            <h2 class="text-xl font-bold mt-4 mb-2">Output</h2>
+            <div id="output" class="bg-gray-50 dark:bg-gray-800 p-2 rounded font-mono text-sm whitespace-pre-wrap"></div>
+        </div>
+
+        <div class="w-full md:w-1/2 bg-white dark:bg-dark-input rounded-lg shadow-md p-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Mermaid Graph</h2>
+                <select id="graphStyle" class="p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-dark-input text-gray-800 dark:text-dark-text">
+                    <option value="default">Default</option>
+                    <option value="forest">Forest</option>
+                    <option value="neutral">Neutral</option>
+                    <option value="dark">Dark</option>
+                </select>
+            </div>
+            <div id="mermaid-graph"></div>
+            <button id="downloadBtn" class="mt-4 bg-blue-500 text-white py-2 px-4 rounded">Download Graph as Image</button>
+        </div>
+    </div>
+
+    <script>
+        const sample = document.getElementById('sample');
+        const output = document.getElementById('output');
+        const mermaidGraph = document.getElementById('mermaid-graph');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const graphStyle = document.getElementById('graphStyle');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+
+        sample.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + '\t' + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 1;
+                updateOutputAndGraph();
+            }
+        });
+
+        function updateOutputAndGraph() {
+            const lines = sample.value.split('\n');
+            output.innerHTML = '';
+            lines.forEach((line, index) => {
+                const escapedLine = line
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;')
+                    .replace(/ /g, '·')
+                    .replace(/\t/g, '→');
+                output.innerHTML += `Line ${index + 1}: ${escapedLine}\n`;
+            });
+
+            // Update Mermaid graph
+            const mermaidContent = sample.value
+                .replace(/\t/g, '    ')  // Replace tabs with 4 spaces for Mermaid
+                .trim();  // Trim any leading or trailing whitespace
+            mermaidGraph.innerHTML = '';  // Clear previous content
+            mermaidGraph.innerHTML = `<pre class="mermaid">${mermaidContent}</pre>`;
+            mermaid.run();  // Use mermaid.run() instead of mermaid.init()
+        }
+
+        sample.addEventListener('input', updateOutputAndGraph);
+        
+        // Initial update
+        updateOutputAndGraph();
+
+        // Dark mode toggle
+        darkModeToggle.addEventListener('change', function() {
+            document.documentElement.classList.toggle('dark');
+            mermaid.initialize({ startOnLoad: true, theme: this.checked ? 'dark' : graphStyle.value });
+            updateOutputAndGraph();
+        });
+
+        // Graph style change
+        graphStyle.addEventListener('change', function() {
+            mermaid.initialize({ startOnLoad: true, theme: this.value });
+            updateOutputAndGraph();
+        });
+
+        // Download graph as image
+        downloadBtn.addEventListener('click', function() {
+            const svgElement = mermaidGraph.querySelector('svg');
+            if (!svgElement) {
+                alert('No graph available to download.');
+                return;
+            }
+
+            const svgData = new XMLSerializer().serializeToString(svgElement);
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'mermaid-graph.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 'image/png');
+            };
+
+            img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+        });
+    </script>
+</body>
+</html>

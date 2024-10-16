@@ -9,7 +9,6 @@ app.use(express.urlencoded({extended: true}))
 app.set("view engine", "ejs")
 app.use(express.static(path.join(__dirname, "public")))
 
-
 app.get("/", (req, res)=>{
     fs.readdir("./files", (err, files)=>{
         res.render("index", {files: files})
@@ -63,7 +62,6 @@ app.post('/save/:filename', (req, res)=>{
         }
     })
 })
-
 app.get('/delete/:filename', (req, res)=>{
     fs.rm(`./files/${req.params.filename}`, (err)=>{
         if(err){
@@ -74,7 +72,6 @@ app.get('/delete/:filename', (req, res)=>{
         }
     })
 })
-
 app.get("/runscript/:filename", (req, res)=>{
     const filename = req.params.filename.split(".")[0]
     const ext = req.params.filename.split(".")[1]
@@ -88,7 +85,6 @@ app.get("/runscript/:filename", (req, res)=>{
         res.send(stdout)
     })
 })
-
 app.get("/download/:filename", (req,res)=>{
     filename = req.params.filename
     res.download(`./files/${filename}`, filename, (err)=>{
@@ -100,8 +96,7 @@ app.get("/download/:filename", (req,res)=>{
         }
     })
 })
-
 app.get("/sample", (req, res)=>{
     res.render("sample")
 })
-app.listen(3000)
+app.listen(5000)

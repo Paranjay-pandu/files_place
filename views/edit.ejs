@@ -1,34 +1,163 @@
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tailwind-scrollbar@3.1.0/src/index.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+    <style>
+        #mermaid-container {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+        }
+
+        #mermaid-diagram {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
 </head>
+
 <body>
-    
+
     <div id="main" class="min-h-screen w-full bg-zinc-900 p-10">
-        <a href="/" class="text-blue-500">Go back.    </a>
-        <form action="/save/<%= filename%>" method="post">
+        <a href="/" class="text-blue-500">Go back</a>
+        <form action="/save/<%= filename %>" method="post">
             <div id="section" class="flex">
-                <input required name="title" type="text" class="px-2 py-1 outline-none text-zinc-200 rounded-md my-2 w-1/4 bg-zinc-700 block" value="<%= filename.split(".")[0].split('-').join(" ") %>">
+                <input required name="title" type="text"
+                    class="px-2 py-1 outline-none text-zinc-200 rounded-md my-2 w-1/4 bg-zinc-700 block"
+                    value="<%= filename.split('.')[0].split('-').join(' ') %>">
                 <label for="type" class="text-zinc-700 my-3 block ml-8 mr-1 px-2">Type of file:</label>
-                <select name="type" id="type" class="hover:select appearance-none px-4 outline-none text-zinc-200 rounded-md bg-zinc-700 block my-2">
-                    <option value=".txt" <%= ext === '.txt' ? 'selected' : '' %>>Plain Text</option>
-                    <option value=".py" <%= ext === '.py' ? 'selected' : '' %>>Python</option>
-                    <option value=".html" <%= ext === '.html' ? 'selected' : '' %>>HTML</option>
-                    <option value=".mermaid" <%= ext === '.mermaid' ? 'selected' : '' %>>Mermaid</option>
-                    <option value=".css" <%= ext === '.css' ? 'selected' : '' %>>CSS</option>
-                    <option value=".js" <%= ext === '.js' ? 'selected' : '' %>>JavaScript</option>
-                    <option value=".java" <%= ext === '.java' ? 'selected' : '' %>>Java</option>
+                <select name="type" id="type"
+                    class="hover:select appearance-none px-4 outline-none text-zinc-200 rounded-md bg-zinc-700 block my-2">
+                    <option value=".txt" <%=ext==='.txt' ? 'selected' : '' %>>Plain Text</option>
+                    <option value=".py" <%=ext==='.py' ? 'selected' : '' %>>Python</option>
+                    <option value=".html" <%=ext==='.html' ? 'selected' : '' %>>HTML</option>
+                    <option value=".mermaid" <%=ext==='.mermaid' ? 'selected' : '' %>>Mermaid</option>
+                    <option value=".css" <%=ext==='.css' ? 'selected' : '' %>>CSS</option>
+                    <option value=".js" <%=ext==='.js' ? 'selected' : '' %>>JavaScript</option>
+                    <option value=".java" <%=ext==='.java' ? 'selected' : '' %>>Java</option>
                 </select>
             </div>
-            <div id="section" class="flex gap-10 min-h-80 justify-between">
-                <textarea required name="desc" class="px-2 py-1 outline-none text-zinc-300 rounded-md resize-none my-2 h-full w-[50%] bg-zinc-700 block" placeholder="Content"><%= filedata %></textarea>
-                <iframe src="#" class="px-2 py-1 outline-none text-zinc-300 rounded-md resize-none my-2 h-full w-[50%] bg-zinc-700 block" frameborder="0"></iframe>
+            <div id="section" class="flex gap-10 justify-between">
+                <textarea required name="desc" id="mermaidInput"
+                    class="px-2 py-1 outline-none text-zinc-300 rounded-md resize-none my-2 w-[50%] bg-zinc-700 block min-h-80"
+                    placeholder="Content"><%= filedata %></textarea>
+                <% if(ext==='.mermaid') { %>
+                    <div
+                        class="relative px-2 py-1 outline-none text-zinc-300 rounded-md resize-none my-2 w-[50%] bg-zinc-700 block">
+                        <div id="mermaid-container" class="w-full overflow-auto">
+                            <div id="mermaid-diagram"
+                                class="overflow-y-scroll scrollbar-thin scrollbar-thumb-zinc-600 scrollbar-track-zinc-800">
+                            </div>
+                        </div>
+                        <button id="downloadBtn"
+                            class="absolute top-2 right-2 bg-zinc-800 hover:bg-zinc-900 text-zinc-400 hover:text-zinc-100 font-bold py-2 px-4 rounded">
+                            Download
+                        </button>
+                        <select id="themeSelect" class="absolute bottom-2 right-2 bg-zinc-800 text-zinc-400 font-bold py-2 px-4 rounded">
+                            <option value="default">Default</option>
+                            <option value="forest">Forest</option>
+                            <option value="dark">Dark</option>
+                            <option value="neutral">Neutral</option>
+                            <option value="base">Base</option>
+                        </select>
+                    </div>
+                <% } %>
             </div>
-            <input class="rounded-md bg-zinc-700 hover:text-zinc-100 hover:bg-zinc-800 text-zinc-400 my-2 py-2 px-7" type="submit" value="Save">
+            <input
+                class="rounded-md mt-4 bg-zinc-700 hover:text-zinc-100 hover:bg-zinc-800 text-zinc-400 my-2 py-2 px-7"
+                type="submit" value="Save">
         </form>
     </div>
+
+    <script>
+        const mermaidInput = document.getElementById('mermaidInput');
+        const mermaidContainer = document.getElementById('mermaid-container');
+        const mermaidDiagram = document.getElementById('mermaid-diagram');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const themeSelect = document.getElementById('themeSelect');
+
+        function updateMermaidGraph() {
+            const mermaidContent = mermaidInput.value
+                .replace(/\t/g, '    ')  // Replace tabs with 4 spaces for Mermaid
+                .trim();  // Trim any leading or trailing whitespace
+            mermaidDiagram.innerHTML = '';  // Clear previous content
+            mermaidDiagram.innerHTML = `<pre class="mermaid">${mermaidContent}</pre>`;
+            mermaid.render('graphDiv', mermaidContent).then(({ svg }) => {
+                mermaidDiagram.innerHTML = svg;
+            });
+        }
+
+        mermaidInput.addEventListener('input', updateMermaidGraph);
+
+        // Initial update
+        updateMermaidGraph();
+
+        // Add tab support for the textarea
+        mermaidInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + '\t' + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 1;
+                updateMermaidGraph();
+            }
+        });
+
+        // Download graph as PNG image
+        downloadBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            const svgElement = mermaidDiagram.querySelector('svg');
+
+            // Create a canvas element
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Set canvas dimensions to match SVG
+            const svgRect = svgElement.getBoundingClientRect();
+            canvas.width = svgRect.width;
+            canvas.height = svgRect.height;
+
+            // Create an image from the SVG
+            const img = new Image();
+            img.onload = function () {
+                // Draw the image on the canvas
+                ctx.drawImage(img, 0, 0);
+
+                // Convert canvas to PNG and download
+                canvas.toBlob(function (blob) {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = '<%= filename.split(".")[0] %>.png';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                }, 'image/png');
+            };
+            img.src = 'data:image/svg+xml;base64,' + btoa(new XMLSerializer().serializeToString(svgElement));
+        });
+
+        // Change theme
+        themeSelect.addEventListener('change', function() {
+            mermaid.initialize({ startOnLoad: true, theme: this.value });
+            updateMermaidGraph();
+        });
+
+        // Set fixed height for textarea and mermaid container
+        mermaidInput.style.height = '320px';
+        mermaidContainer.style.height = '320px';
+    </script>
 </body>
+
 </html>

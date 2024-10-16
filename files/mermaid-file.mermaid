@@ -1,0 +1,18 @@
+graph TD
+    A[Start] --> B[Soil Analysis]
+    B --> C[Planting Seeds]
+    C --> D[Watering & Irrigation]
+    D --> E[Fertilizing]
+    E --> F[Monitoring Growth]
+    F --> G[Detecting Pests/Diseases]
+    G --> H[Apply Pesticides/Herbicides]
+    F --> I[Harvesting]
+    I --> J[Processing & Packaging]
+    J --> K[Market/Distribution]
+    K --> L[End]
+    
+    %% Optional: Add interactions with weather and technology
+    W[Weather] -.-> D
+    T[Technology/AI] --> B
+    T --> F
+    T -.-> G

@@ -1,2 +1,2 @@
-a = input(int("input"))
-print(a)
+a = "this is a text"
+print(a) 
